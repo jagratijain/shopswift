@@ -61,7 +61,7 @@ export default function Home() {
       {/* Product Listing Section */}
       <section className="px-8 md:px-16 py-10 bg-white">
         <h2 className="text-2xl font-bold mb-6">Featured Products</h2>
-        <div className="flex gap-6 overflow-x-auto scrollbar-thin scrollbar-thumb-purple-300">
+        <div className="flex gap-6 overflow-x-auto scrollbar-thin scrollbar-thumb-purple-300 pb-4">
           <ProductCard image={men} name="Stylish Men Jacket" price={1999} />
           <ProductCard image={women} name="Trendy Women Dress" price={1499} />
           <ProductCard image={watch} name="Elegant Watch" price={2999} />
