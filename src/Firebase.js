@@ -1,8 +1,7 @@
-// src/firebase.js
+// firebase.js
 import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth"; // ✅ Only this is needed now
+import { getAuth } from "firebase/auth";
 
-// Your Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyAgjVuDeB-BK9qiDRSvBBNx-Bu9wTUJy5Q",
   authDomain: "shopswift-46530.firebaseapp.com",
@@ -13,8 +12,7 @@ const firebaseConfig = {
   measurementId: "G-GHBKG9M1ZV"
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
-export { auth };
+export { auth, app }; // ✅ Fix: now 'app' is exported too
