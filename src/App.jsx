@@ -3,6 +3,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Home from "./pages/Home";
 import Women from "./pages/Women";
+import Shopnow from './pages/Shopnow';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useAuth } from "./context/AuthContext";
@@ -28,6 +29,7 @@ function App() {
 
           {/* Protect these routes */}
           <Route path="/home" element={<PrivateRoute><Home /></PrivateRoute>} />
+          <Route path="/Shopnow" element={<PrivateRoute><Shopnow /></PrivateRoute>} />
           <Route path="/women" element={<PrivateRoute><Women /></PrivateRoute>} />
         </Routes>
       </div>
