@@ -1,6 +1,6 @@
 // src/pages/Women.jsx
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link,useNavigate} from "react-router-dom";
 import Navbar from "../components/Navbar";
 import ProductCard from "../components/ProductCard";
 
@@ -9,6 +9,7 @@ import women from "../assets/women.avif";
 
 export default function Women() {
   // Dummy products data for women's category
+  const navigate = useNavigate();
   const womenProducts = [
     { id: 2, name: "Trendy Women Dress", price: 1499, image: women, category: "women" },
     { id: 5, name: "Summer Kurti", price: 1199, image: women, category: "women" },
@@ -91,8 +92,11 @@ export default function Women() {
             <p className="text-gray-600 mb-6">
               Discover our vibrant summer collection featuring lightweight fabrics and beautiful prints perfect for the warm season.
             </p>
-            <button className="bg-pink-600 text-white px-6 py-3 rounded hover:bg-pink-500 transition">
-              Shop Summer Collection
+            <button 
+              onClick={() => navigate("/shopnow")} 
+              className="bg-purple-600 text-white px-6 py-3 rounded hover:bg-purple-700 transition"
+            >
+              Shop Collection
             </button>
           </div>
           <div className="md:w-1/2">

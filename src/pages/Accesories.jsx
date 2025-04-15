@@ -1,6 +1,6 @@
 // src/pages/Accessories.jsx
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import ProductCard from "../components/ProductCard";
 
@@ -9,6 +9,7 @@ import watch from "../assets/watch.jpeg";
 import earing from "../assets/earing.jpeg";
 
 export default function Accessories() {
+  const navigate = useNavigate();
   // Dummy products data for accessories category
   const accessoriesProducts = [
     { id: 3, name: "Elegant Watch", price: 2999, image: watch, category: "accessories" },
@@ -76,6 +77,7 @@ export default function Accessories() {
               image={product.image}
               name={product.name}
               price={product.price}
+              category={product.category}
             />
           ))}
         </div>
@@ -92,9 +94,12 @@ export default function Accessories() {
             <p className="text-gray-600 mb-6">
               Discover our exclusive range of luxury watches. Crafted with precision and designed for elegance, these timepieces are the perfect statement for any occasion.
             </p>
-            <button className="bg-purple-700 text-white px-6 py-3 rounded hover:bg-purple-600 transition">
-              Explore Luxury Watches
-            </button>
+            <button 
+  onClick={() => navigate("/shopnow")}
+  className="bg-purple-700 text-white px-6 py-3 rounded hover:bg-purple-600 transition"
+>
+  Explore Luxury Watches
+</button>
           </div>
           <div className="md:w-1/2">
             <img 
@@ -118,6 +123,7 @@ export default function Accessories() {
               image={product.image}
               name={product.name}
               price={product.price}
+              category={product.category}
             />
           ))}
         </div>

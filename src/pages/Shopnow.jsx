@@ -197,8 +197,10 @@ export default function Shopnow() {
                     <ProductCard
                       key={product.id}
                       image={product.image}
+                      id={product.id} 
                       name={product.name}
                       price={product.price}
+                      category={product.category} 
                     />
                   ))}
                 </div>

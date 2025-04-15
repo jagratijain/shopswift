@@ -1,8 +1,17 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { FaHeart, FaShoppingCart } from "react-icons/fa";
+import { FaHeart, FaShoppingCart, FaStar } from "react-icons/fa";
 
-const ProductCard = ({ id, image, name, price, category, sizes = ["S", "M", "L", "XL"] }) => {
+const ProductCard = ({ 
+  id, 
+  image, 
+  name, 
+  price, 
+  category, 
+  rating = 4.5, 
+  reviewCount = 0,
+  sizes = ["S", "M", "L", "XL"] 
+}) => {
   const [isInWishlist, setIsInWishlist] = useState(() => {
     const wishlist = JSON.parse(localStorage.getItem("wishlist")) || [];
     return wishlist.some(item => item.id === id);
@@ -24,6 +33,8 @@ const ProductCard = ({ id, image, name, price, category, sizes = ["S", "M", "L",
           price,
           image,
           category,
+          rating,
+          reviewCount,
           size: selectedSize,
           addedAt: new Date().toISOString()
         };
@@ -67,6 +78,8 @@ const ProductCard = ({ id, image, name, price, category, sizes = ["S", "M", "L",
           price,
           image,
           category,
+          rating,
+          reviewCount,
           size: selectedSize,
           quantity: 1,
           addedAt: new Date().toISOString()
@@ -75,10 +88,43 @@ const ProductCard = ({ id, image, name, price, category, sizes = ["S", "M", "L",
 
       localStorage.setItem("cart", JSON.stringify(cart));
       window.dispatchEvent(new Event("cartUpdated"));
-      alert(`${name} (Size: ${selectedSize}) added to cart!`);
+      
+      // Using a nicer notification instead of alert
+      const notification = document.createElement('div');
+      notification.className = 'fixed bottom-4 right-4 bg-green-600 text-white p-4 rounded-lg shadow-lg z-50 animate-fade-in-up';
+      notification.innerHTML = `<div class="flex items-center gap-2">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        ${name} (Size: ${selectedSize}) added to cart!
+      </div>`;
+      document.body.appendChild(notification);
+      
+      setTimeout(() => {
+        notification.classList.add('animate-fade-out');
+        setTimeout(() => document.body.removeChild(notification), 500);
+      }, 3000);
     } catch (error) {
       console.error("Error adding to cart:", error);
     }
+  };
+
+  // Function to render star rating
+  const renderStars = () => {
+    return (
+      <div className="flex items-center mt-1 mb-2">
+        {[...Array(5)].map((_, i) => (
+          <FaStar 
+            key={i} 
+            className={i < Math.floor(rating) ? "text-yellow-400" : "text-gray-300"} 
+            size={12} 
+          />
+        ))}
+        <span className="text-xs text-gray-600 ml-1">
+          {rating} {reviewCount > 0 && `(${reviewCount})`}
+        </span>
+      </div>
+    );
   };
 
   return (
@@ -94,6 +140,13 @@ const ProductCard = ({ id, image, name, price, category, sizes = ["S", "M", "L",
               e.target.src = "https://via.placeholder.com/300x400?text=Product+Image";
             }}
           />
+          {category && (
+            <div className="absolute top-2 left-2">
+              <span className="bg-purple-600 text-white px-2 py-1 text-xs rounded-full">
+                {category}
+              </span>
+            </div>
+          )}
         </Link>
 
         <div className="absolute top-2 right-2 flex flex-col gap-2">
@@ -117,6 +170,9 @@ const ProductCard = ({ id, image, name, price, category, sizes = ["S", "M", "L",
             {name}
           </h3>
         </Link>
+        
+        {renderStars()}
+        
         <p className="text-lg font-bold text-gray-900 mt-1 mb-3">₹{price}</p>
 
         {showSizes && (

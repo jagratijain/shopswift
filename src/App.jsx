@@ -20,6 +20,9 @@ import AddNewAddress from "./pages/AddNewAddress";
 import Trackorder from "./pages/Trackorder";
 import Searchresult from "./pages/Searchresult";
 import Wishlist from "./pages/Wishlist";
+import ProductDetail from "./pages/ProductDetail";
+import ProductGrid from "./pages/ProductGrid";
+
 
 
 // Optional private route component
@@ -33,7 +36,6 @@ function App() {
     <BrowserRouter>
       <div>
         <ToastContainer position="top-right" autoClose={2000} />
-        <div className="text-center mt-6 font-bold text-2xl">Welcome to ShopSwift</div>
 
         <Routes>
           <Route path="/" element={<Login />} />
@@ -56,6 +58,8 @@ function App() {
           <Route path="/Trackorder/:orderId" element={<Trackorder />} />
           <Route path="/Searchresult" element={<Searchresult />} />
           <Route path="/Wishlist" element={<Wishlist />} />
+          <Route path="/product/:id" element={<ProductDetail />} />
+          <Route path="/ProductGrid" element={<ProductGrid />} />
 
 
         </Routes>

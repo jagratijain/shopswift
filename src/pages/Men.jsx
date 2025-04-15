@@ -1,14 +1,16 @@
 // src/pages/Men.jsx
 import React from "react";
-import { Link } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import ProductCard from "../components/ProductCard";
+import { Link, useNavigate } from "react-router-dom";
 
 // Import your product images
 import men from "../assets/men.jpg";
 
+
 export default function Men() {
   // Dummy products data for men's category
+  const navigate = useNavigate();
   const menProducts = [
     { id: 1, name: "Stylish Men Jacket", price: 1999, image: men, category: "men" },
     { id: 6, name: "Casual Men Shirt", price: 899, image: men, category: "men" },
@@ -91,9 +93,12 @@ export default function Men() {
             <p className="text-gray-600 mb-6">
               Get 30% off on our new spring collection for men. Quality fabrics with contemporary designs for the modern man.
             </p>
-            <button className="bg-gray-900 text-white px-6 py-3 rounded hover:bg-gray-800 transition">
-              Shop Collection
-            </button>
+            <button 
+              onClick={() => navigate("/shopnow")} 
+                   className="bg-gray-900 text-white px-6 py-3 rounded hover:bg-gray-800 transition"
+                  >
+               Shop Collection
+               </button>
           </div>
           <div className="md:w-1/2">
             <img 
