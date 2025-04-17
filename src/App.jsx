@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import Home from "./pages/Home";
+import Home from "./pages/Home";  // Check if this path is correct
 import Women from "./pages/Women";
 import Shopnow from './pages/Shopnow';
 import { ToastContainer } from 'react-toastify';
@@ -44,9 +44,10 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/home" element={<Home />} />
 
           {/* Protect these routes */}
-          <Route path="/home" element={<PrivateRoute><Home /></PrivateRoute>} />
+          
           <Route path="/Shopnow" element={<PrivateRoute><Shopnow /></PrivateRoute>} />
           <Route path="/women" element={<PrivateRoute><Women /></PrivateRoute>} />
           <Route path="/Men" element={<Men />} />

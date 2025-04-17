@@ -1,21 +1,30 @@
 import { useState } from "react";
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../services/Firebase.js";
 import { useNavigate, Link } from "react-router-dom";
+import axios from "axios";
 
 const Register = () => {
   const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
+  const [name, setName] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
   const [emailError, setEmailError] = useState("");
+  const [usernameError, setUsernameError] = useState("");
+  const [nameError, setNameError] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [confirmError, setConfirmError] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+
+  // Backend API URL
+  const API_URL = "http://localhost:5000/api";
 
   const validateForm = () => {
     let valid = true;
     setEmailError("");
+    setUsernameError("");
+    setNameError("");
     setPasswordError("");
     setConfirmError("");
 
@@ -23,6 +32,16 @@ const Register = () => {
 
     if (!emailRegex.test(email)) {
       setEmailError("Enter a valid email address.");
+      valid = false;
+    }
+
+    if (username.length < 3) {
+      setUsernameError("Username must be at least 3 characters.");
+      valid = false;
+    }
+
+    if (!name.trim()) {
+      setNameError("Please enter your name.");
       valid = false;
     }
 
@@ -44,11 +63,37 @@ const Register = () => {
     if (!validateForm()) return;
 
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
-      alert("Registration successful!");
+      setLoading(true);
+      setErrorMsg("");
+      
+      // Send registration request to backend - updated endpoint
+      await axios.post(`${API_URL}/register`, {
+        email,
+        username,
+        password,
+        name
+      });
+      
+      // Show success message
+      alert("Registration successful! You can now login.");
+      
+      // Redirect to login page
       navigate("/login");
     } catch (error) {
-      setErrorMsg(error.message);
+      console.error("Registration error:", error);
+      
+      if (error.response) {
+        // Show specific error message from server
+        setErrorMsg(error.response.data.message || "Registration failed. Please try again.");
+      } else if (error.request) {
+        // No response received
+        setErrorMsg("Unable to connect to the server. Please try again later.");
+      } else {
+        // Something else happened
+        setErrorMsg("An error occurred during registration. Please try again.");
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -72,6 +117,34 @@ const Register = () => {
               onChange={(e) => setEmail(e.target.value)}
             />
             {emailError && <p className="text-red-500 text-sm mt-1">{emailError}</p>}
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold mb-1">Username</label>
+            <input
+              type="text"
+              className={`w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 ${
+                usernameError ? "border-red-500 focus:ring-red-300" : "focus:ring-indigo-300"
+              }`}
+              placeholder="Choose a username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+            />
+            {usernameError && <p className="text-red-500 text-sm mt-1">{usernameError}</p>}
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold mb-1">Full Name</label>
+            <input
+              type="text"
+              className={`w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 ${
+                nameError ? "border-red-500 focus:ring-red-300" : "focus:ring-indigo-300"
+              }`}
+              placeholder="Enter your full name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
+            {nameError && <p className="text-red-500 text-sm mt-1">{nameError}</p>}
           </div>
 
           <div>
@@ -105,8 +178,9 @@ const Register = () => {
           <button
             type="submit"
             className="w-full bg-indigo-600 text-white font-semibold py-2 rounded-md hover:bg-indigo-700 transition duration-200"
+            disabled={loading}
           >
-            Register
+            {loading ? "Registering..." : "Register"}
           </button>
         </form>
 

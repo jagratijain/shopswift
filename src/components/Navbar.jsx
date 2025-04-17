@@ -50,7 +50,7 @@ const Navbar = () => {
   };
 
   const navigateToHome = () => {
-    navigate("/Home");
+    navigate("/home");
   };
 
   return (
@@ -63,9 +63,9 @@ const Navbar = () => {
       </div>
 
       <div className="space-x-6 text-lg hidden md:flex">
-        <Link to="/Men" className="hover:text-purple-700">Men</Link>
+        <Link to="/men" className="hover:text-purple-700">Men</Link>
         <Link to="/women" className="hover:text-purple-700">Women</Link>
-        <Link to="/Accesories" className="hover:text-purple-700">Accesories</Link>
+        <Link to="/accesories" className="hover:text-purple-700">Accesories</Link>
       </div>
 
       <div className="flex items-center gap-4 relative">
@@ -114,20 +114,20 @@ const Navbar = () => {
             >
               <FaUserCircle />
               <span className="text-sm">
-                {user.role === "admin" ? `Admin (${user.email})` : user.email}
+                {user.role === "admin" ? `Admin (${user.username || user.email})` : user.email}
               </span>
             </button>
 
             {showModal && (
               <div className="absolute right-0 top-10 bg-white shadow-lg rounded-md p-4 w-48 z-50">
                 <p className="text-sm text-gray-600 mb-2">
-                  Hello, {user.role === "admin" ? "Admin" : "User"}<br />
+                  Hello, {user.role === "admin" ? user.username || "Admin" : user.username || "User"}<br />
                   {user.email}
                 </p>
                 <Link to="/profile" className="block py-1 text-purple-700 hover:underline">
                   Profile
                 </Link>
-                <Link to="/Orderhistory" className="block py-1 text-purple-700 hover:underline">
+                <Link to="/orderhistory" className="block py-1 text-purple-700 hover:underline">
                   Order History
                 </Link>
                 <button
