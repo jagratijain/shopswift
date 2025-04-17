@@ -1,6 +1,6 @@
 import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
 import { createContext, useContext, useEffect, useState } from "react";
-import { app } from "../services/Firebase"; // ✅ now this will work
+import { app } from "../services/Firebase";
 
 const AuthContext = createContext();
 
@@ -10,7 +10,14 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
+      if (currentUser) {
+        setUser({
+          email: currentUser.email,
+          role: currentUser.email === "admin@example.com" ? "admin" : "user", // simple admin check
+        });
+      } else {
+        setUser(null); // when user logs out
+      }
     });
 
     return () => unsubscribe();

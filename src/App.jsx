@@ -22,6 +22,9 @@ import Searchresult from "./pages/Searchresult";
 import Wishlist from "./pages/Wishlist";
 import ProductDetail from "./pages/ProductDetail";
 import ProductGrid from "./pages/ProductGrid";
+import AdminDashboard from "./pages/AdminDashboard";
+import AddProduct from "./pages/AddProduct";
+
 
 
 
@@ -38,7 +41,7 @@ function App() {
         <ToastContainer position="top-right" autoClose={2000} />
 
         <Routes>
-          <Route path="/" element={<Login />} />
+          <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
 
@@ -60,6 +63,10 @@ function App() {
           <Route path="/Wishlist" element={<Wishlist />} />
           <Route path="/product/:id" element={<ProductDetail />} />
           <Route path="/ProductGrid" element={<ProductGrid />} />
+          <Route path="/AdminDashboard" element={<AdminDashboard />} />
+          <Route path="/AddProduct" element={<AddProduct />} />
+          
+
 
 
         </Routes>

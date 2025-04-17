@@ -9,17 +9,31 @@ const Profile = () => {
   const [orders, setOrders] = useState([]);
   const [activeTab, setActiveTab] = useState("orders");
   const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [userEmail, setUserEmail] = useState("");
 
   useEffect(() => {
+    // Check if user is admin and get email from localStorage
+    const adminStatus = localStorage.getItem("isAdmin") === "true";
+    const emailFromStorage = localStorage.getItem("userEmail");
+    
+    setIsAdmin(adminStatus);
+    setUserEmail(emailFromStorage || user?.email || "User");
+
     // Fetch orders from localStorage
     const fetchOrders = () => {
       const savedOrders = JSON.parse(localStorage.getItem("orders")) || [];
-      setOrders(savedOrders);
+      // Filter orders to only show those for the current user if not admin
+      const filteredOrders = adminStatus 
+        ? savedOrders 
+        : savedOrders.filter(order => order.customerEmail === emailFromStorage);
+      
+      setOrders(filteredOrders);
       setLoading(false);
     };
 
     fetchOrders();
-  }, []);
+  }, [user]);
 
   // Format date
   const formatDate = (dateString) => {
@@ -65,12 +79,27 @@ const Profile = () => {
                   </svg>
                 </div>
                 <div className="ml-4">
-                  <h2 className="text-lg font-semibold text-gray-900">{user?.email || "User"}</h2>
-                  <p className="text-sm text-gray-500">Account Member</p>
+                  <h2 className="text-lg font-semibold text-gray-900">{userEmail}</h2>
+                  <p className="text-sm text-gray-500">
+                    {isAdmin ? (
+                      <span className="text-purple-600 font-medium">Admin Account</span>
+                    ) : (
+                      "Account Member"
+                    )}
+                  </p>
                 </div>
               </div>
               
               <nav className="space-y-2">
+                {isAdmin && (
+                  <Link 
+                    to="/AdminDashboard"
+                    className="block w-full text-left px-4 py-2 rounded-md bg-purple-600 text-white font-medium hover:bg-purple-700 transition"
+                  >
+                    Admin Dashboard
+                  </Link>
+                )}
+                
                 <button
                   onClick={() => setActiveTab("orders")}
                   className={`w-full text-left px-4 py-2 rounded-md ${activeTab === "orders" ? "bg-purple-100 text-purple-700 font-medium" : "text-gray-700 hover:bg-gray-100"}`}
@@ -95,6 +124,33 @@ const Profile = () => {
           
           {/* Main Content */}
           <div className="md:col-span-3">
+            {/* Admin Info Box - Only shown to admins */}
+            {isAdmin && activeTab === "orders" && (
+              <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 mb-6">
+                <div className="flex items-start">
+                  <div className="flex-shrink-0 bg-purple-100 rounded-full p-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <div className="ml-3">
+                    <h3 className="text-sm font-medium text-purple-800">Admin Access Available</h3>
+                    <div className="mt-1 text-sm text-purple-700">
+                      <p>You have administrator privileges. Access the admin dashboard to manage products, view all orders, and manage users.</p>
+                    </div>
+                    <div className="mt-3">
+                      <Link 
+                        to="/AdminDashboard" 
+                        className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-purple-600 hover:bg-purple-700 focus:outline-none"
+                      >
+                        Go to Admin Dashboard
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          
             {activeTab === "orders" && (
               <div className="bg-white rounded-lg shadow-sm overflow-hidden">
                 <div className="px-6 py-4 border-b">
@@ -148,16 +204,16 @@ const Profile = () => {
                                 {order.orderStatus}
                               </span>
                             </div>
-                            <p className="text-sm text-gray-500 mt-1">Placed on {formatDate(order.orderDate)}</p>
+                            <p className="text-sm text-gray-500 mt-1">Placed on {formatDate(order.date)}</p>
                           </div>
                           <div className="mt-2 md:mt-0">
                             <p className="text-lg font-bold text-gray-900">₹{order.orderTotal}</p>
-                            <p className="text-sm text-gray-500">Payment: {getPaymentMethodName(order.paymentMethod)}</p>
+                            <p className="text-sm text-gray-500">Payment: {getPaymentMethodName(order.paymentMethod || "card")}</p>
                           </div>
                         </div>
                         
                         <div className="mt-4 space-y-4">
-                          {order.items.map((item, itemIndex) => (
+                          {order.items && order.items.map((item, itemIndex) => (
                             <div key={itemIndex} className="flex items-center">
                               <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-md border border-gray-200">
                                 <img 
@@ -166,7 +222,7 @@ const Profile = () => {
                                   className="h-full w-full object-cover object-center"
                                   onError={(e) => {
                                     e.target.onerror = null;
-                                    e.target.src = 'https://via.placeholder.com/150?text=Product';
+                                    e.target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="150" height="150" viewBox="0 0 150 150"%3E%3Crect width="150" height="150" fill="%23f0f0f0"/%3E%3Ctext x="50%25" y="50%25" font-size="18" text-anchor="middle" alignment-baseline="middle" font-family="sans-serif" fill="%23999999"%3EProduct Image%3C/text%3E%3C/svg%3E';
                                   }}
                                 />
                               </div>
@@ -181,26 +237,28 @@ const Profile = () => {
                           ))}
                         </div>
                         
-                        <div className="mt-6 flex justify-between">
-                          <div>
-                            <h4 className="text-sm font-medium text-gray-900">Shipping Address:</h4>
-                            <p className="text-sm text-gray-500 mt-1">
-                              {order.shippingAddress.addressLine1}
-                              {order.shippingAddress.addressLine2 ? `, ${order.shippingAddress.addressLine2}` : ""}
-                              <br />
-                              {order.shippingAddress.city}, {order.shippingAddress.state} - {order.shippingAddress.pincode}
-                            </p>
-                          </div>
-                          
-                          <button className="text-purple-600 hover:text-purple-800 text-sm font-medium">
-                             <Link 
-                            to={`/Trackorder/${order.orderId}`} 
-                            className="text-purple-600 hover:text-purple-800 text-sm font-medium"
-                             >
-                              Track Order
-                            </Link>
+                        {order.shippingAddress && (
+                          <div className="mt-6 flex justify-between">
+                            <div>
+                              <h4 className="text-sm font-medium text-gray-900">Shipping Address:</h4>
+                              <p className="text-sm text-gray-500 mt-1">
+                                {order.shippingAddress.addressLine1}
+                                {order.shippingAddress.addressLine2 ? `, ${order.shippingAddress.addressLine2}` : ""}
+                                <br />
+                                {order.shippingAddress.city}, {order.shippingAddress.state} - {order.shippingAddress.pincode}
+                              </p>
+                            </div>
+                            
+                            <button className="text-purple-600 hover:text-purple-800 text-sm font-medium">
+                              <Link 
+                                to={`/Trackorder/${order.orderId}`} 
+                                className="text-purple-600 hover:text-purple-800 text-sm font-medium"
+                              >
+                                Track Order
+                              </Link>
                             </button>
-                        </div>
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>
@@ -257,7 +315,7 @@ const Profile = () => {
                                 <div className="flex items-center">
                                   <h3 className="font-semibold text-gray-900">Default Address</h3>
                                   <span className="ml-2 px-2 py-1 bg-purple-100 text-purple-700 text-xs rounded-full">
-                                    {defaultAddress.addressType.toUpperCase()}
+                                    {defaultAddress.addressType?.toUpperCase() || "HOME"}
                                   </span>
                                 </div>
                                 <div className="mt-2 text-sm text-gray-600">
@@ -288,7 +346,7 @@ const Profile = () => {
                                 <div className="flex items-center">
                                   <h3 className="font-semibold text-gray-900">Address</h3>
                                   <span className="ml-2 px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full">
-                                    {address.addressType.toUpperCase()}
+                                    {address.addressType?.toUpperCase() || "OTHER"}
                                   </span>
                                 </div>
                                 <div className="mt-2 text-sm text-gray-600">
@@ -356,12 +414,28 @@ const Profile = () => {
                         </label>
                         <input
                           type="email"
-                          value={user?.email || ""}
+                          value={userEmail}
                           disabled
                           className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-500"
                         />
                         <p className="text-xs text-gray-500 mt-1">Your email address cannot be changed</p>
                       </div>
+                      
+                      {isAdmin && (
+                        <div className="p-4 bg-purple-50 border border-purple-200 rounded-md">
+                          <h3 className="font-medium text-purple-800">Admin Account</h3>
+                          <p className="text-sm text-purple-700 mt-1">This account has administrator privileges.</p>
+                          <Link 
+                            to="/AdminDashboard"
+                            className="mt-3 inline-flex items-center text-sm font-medium text-purple-700 hover:text-purple-900"
+                          >
+                            Go to Admin Dashboard
+                            <svg xmlns="http://www.w3.org/2000/svg" className="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                            </svg>
+                          </Link>
+                        </div>
+                      )}
                       
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">

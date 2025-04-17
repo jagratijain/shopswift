@@ -19,6 +19,12 @@ const Cart = () => {
     return cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
   };
 
+  const calculateTotal = () => {
+    return calculateSubtotal() + 
+          (calculateSubtotal() > 999 ? 0 : 99) + 
+          Math.round(calculateSubtotal() * 0.18);
+  };
+
   const handleQuantityChange = (index, newQuantity) => {
     if (newQuantity < 1) return;
     
@@ -50,6 +56,68 @@ const Cart = () => {
     
     // Dispatch event to update cart count in navbar
     window.dispatchEvent(new Event('cartUpdated'));
+  };
+
+  // This function will create an order in localStorage when proceeding to checkout
+  const handleProceedToCheckout = () => {
+    // Only proceed if cart has items
+    if (cartItems.length === 0) {
+      alert("Your cart is empty.");
+      return;
+    }
+
+    // Get shipping address if available
+    const shippingAddress = JSON.parse(localStorage.getItem("shippingAddress")) || {
+      fullName: "",
+      addressLine1: "",
+      city: "",
+      state: "",
+      pincode: "",
+      phoneNumber: ""
+    };
+
+    // Generate a unique order ID
+    const orderId = `ORD${Math.floor(1000 + Math.random() * 9000)}`;
+    
+    // Get user email from localStorage if available
+    const userEmail = localStorage.getItem("userEmail") || "guest@example.com";
+    
+    // Create order object
+    const newOrder = {
+      orderId: orderId,
+      customerName: shippingAddress.fullName || "Guest User",
+      customerEmail: userEmail,
+      date: new Date().toISOString().split('T')[0], // Today's date in YYYY-MM-DD format
+      items: cartItems,
+      orderTotal: calculateTotal(),
+      subtotal: calculateSubtotal(),
+      shipping: calculateSubtotal() > 999 ? 0 : 99,
+      tax: Math.round(calculateSubtotal() * 0.18),
+      shippingAddress: shippingAddress,
+      paymentMethod: "pending", // Will be set during payment
+      orderStatus: "Pending"
+    };
+    
+    // Store order data temporarily until payment is complete
+    localStorage.setItem("pendingOrder", JSON.stringify(newOrder));
+    
+    // Also save for admin dashboard in simplified format
+    const adminOrderEntry = {
+      id: orderId,
+      customerName: newOrder.customerName,
+      customerEmail: newOrder.customerEmail,
+      date: newOrder.date,
+      totalAmount: newOrder.orderTotal,
+      status: "Pending"
+    };
+    
+    // Get existing admin orders or create empty array
+    const adminOrders = JSON.parse(localStorage.getItem("adminOrders")) || [];
+    adminOrders.push(adminOrderEntry);
+    localStorage.setItem("adminOrders", JSON.stringify(adminOrders));
+    
+    // Proceed to address/checkout page
+    navigate("/address");
   };
 
   return (
@@ -106,7 +174,7 @@ const Cart = () => {
                           className="h-full w-full object-cover object-center" 
                           onError={(e) => {
                             e.target.onerror = null;
-                            e.target.src = 'https://via.placeholder.com/150?text=Product';
+                            e.target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="150" height="150" viewBox="0 0 150 150"%3E%3Crect width="150" height="150" fill="%23f0f0f0"/%3E%3Ctext x="50%25" y="50%25" font-size="18" text-anchor="middle" alignment-baseline="middle" font-family="sans-serif" fill="%23999999"%3EProduct Image%3C/text%3E%3C/svg%3E';
                           }}
                         />
                       </div>
@@ -183,14 +251,12 @@ const Cart = () => {
                   <div className="border-t pt-4 flex justify-between">
                     <p className="text-lg font-medium text-gray-900">Total</p>
                     <p className="text-lg font-bold text-gray-900">
-                      ₹{calculateSubtotal() + 
-                        (calculateSubtotal() > 999 ? 0 : 99) + 
-                        Math.round(calculateSubtotal() * 0.18)}
+                      ₹{calculateTotal()}
                     </p>
                   </div>
                   
                   <button
-                    onClick={() => navigate("/address")}
+                    onClick={handleProceedToCheckout}
                     className="w-full bg-purple-600 text-white py-3 rounded-md font-medium hover:bg-purple-700 transition mt-6"
                   >
                     Proceed to Checkout
